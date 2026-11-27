@@ -1,7 +1,7 @@
 # FinLLM — Development Progress
 
-**Status:** Weeks 1 and 2 completed (market-data preparation and first ML baseline)  
-**Last updated:** November 13, 2026  
+**Status:** Weeks 1–3 completed (market-data preparation, baseline models, and tree-based model evaluation)  
+**Last updated:** November 26, 2026  
 **Repository:** [remythomasvo/FinLLM](https://github.com/remythomasvo/FinLLM)
 
 ## Project overview
@@ -93,6 +93,45 @@ These counts include the two intentionally omitted boundary rows.
 - The four market indicators, together with this linear model and training setup, have **not yet demonstrated meaningful incremental predictive accuracy**. This is a useful baseline result rather than a project failure.
 - No conclusion about performance on the untouched test set, statistical significance, or profitability has been established.
 
+## Completed — Week 3: Tree-based model evaluation
+
+- Trained and evaluated Random Forest and XGBoost using the same chronological training and validation split as the Week 2 baseline.
+- Compared both models with logistic regression and the always-up baseline on the **405-row validation set**.
+- Recorded accuracy, macro-F1, balanced accuracy, and confusion matrices for the tree-based models.
+- Kept the **407-row final test set untouched**; no final test result is claimed.
+
+### Validation results
+
+| Model | Accuracy | Macro-F1 | Balanced accuracy |
+| --- | ---: | ---: | ---: |
+| Always-up baseline | **55.56%** | — | — |
+| Logistic regression | **55.31%** | — | — |
+| Random Forest | **54.32%** | **0.4308** | **0.500** |
+| XGBoost | **54.57%** | **0.4889** | **0.515** |
+
+Confusion matrices use rows for actual classes and columns for predicted classes; class `0` means not up and class `1` means up.
+
+**Random Forest:**
+
+```text
+[[ 20 160]
+ [ 25 200]]
+```
+
+**XGBoost:**
+
+```text
+[[ 43 137]
+ [ 47 178]]
+```
+
+### Findings and interpretation
+
+- XGBoost has the strongest class-balanced results among the tested models: macro-F1 **0.4889** and balanced accuracy **0.515**. It correctly identifies 43 of 180 not-up days, compared with 20 of 180 for Random Forest, though it still misses most not-up days.
+- This improved class balance does **not** improve overall accuracy over the always-up baseline: XGBoost scores **54.57%**, versus **55.56%** for always-up. Logistic regression (**55.31%**) and Random Forest (**54.32%**) are also below the baseline.
+- The results suggest **limited predictive signal** from the current features and model setup. They do not establish useful predictive performance or profitability.
+- Validation was used for model comparison only. The final test set remains reserved for a later out-of-sample evaluation.
+
 ## Repository structure
 
 ```text
@@ -108,11 +147,9 @@ FinLLM/
     └── 02_logistic_regression.ipynb  # created in Colab; verify GitHub commit
 ```
 
-## Next steps — Week 3 and beyond
+## Next steps — Week 4 and beyond
 
-- [ ] Confirm that `02_logistic_regression.ipynb` is committed to `notebooks/` on GitHub.
-- [ ] Train **Random Forest** and **XGBoost** on the same training and validation periods.
-- [ ] Compare both against logistic regression and simple baselines using accuracy, macro-F1, confusion matrices, and probability-based metrics.
+- [ ] Confirm that the Week 2 logistic-regression notebook is committed to `notebooks/` on GitHub.
 - [ ] Use validation data for model selection; keep the **407-row test set untouched** until final evaluation.
 - [ ] Add stronger market-context features, such as SPY returns, with careful historical alignment.
 - [ ] Integrate **FinBERT** financial news sentiment, using historical headlines with verified publication timestamps.
